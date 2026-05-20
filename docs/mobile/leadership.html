@@ -83,6 +83,15 @@ body {
   color: #e8d5a0;
   margin: 0 auto 10px;
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.leader-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 .leader-card h3 {
@@ -164,7 +173,28 @@ body {
   font-size: 20px;
   color: #e8d5a0;
   flex-shrink: 0;
+  overflow: hidden;
 }
+
+.modal-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.modal-email {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #2e6aa9;
+}
+
+.modal-email a {
+  color: #2e6aa9;
+  text-decoration: none;
+}
+.modal-email a:hover { text-decoration: underline; }
 
 .modal-header h2 {
   margin: 0 0 2px;
@@ -316,6 +346,7 @@ body {
       <div>
         <h2 id="modalName">Name</h2>
         <p id="modalRole">Role</p>
+        <p class="modal-email" id="modalEmail"></p>
       </div>
     </div>
     <div class="modal-bio" id="modalBio"></div>
@@ -344,125 +375,159 @@ body {
 </div>
 
 <script>
-const leaders = {
-  'owens': {
-    initials: 'TO',
-    name: 'Ted Owens',
-    role: 'Senior Pastor',
-    bio: [
-      "Pastor Ted Owens leads Petra Baptist Church with a passion for expository preaching and a deep commitment to seeing lives transformed by the Gospel. He holds a Master of Divinity and brings years of pastoral experience to his ministry.",
-      "He and his wife Erin have been married for over 25 years, and together with their three children, they faithfully serve the Lord, modeling what it means to walk with Christ."
-    ]
-  },
-  'lee': {
-    initials: 'BL',
-    name: 'Brian Lee',
-    role: 'Associate Pastor / Director of Men\'s Ministry',
-    bio: [
-      "Brian Lee serves as the Associate Pastor, assisting with pastoral duties and leading the Men's Ministry, where he is passionate about helping men grow in their relationship with Jesus Christ as Lord and Savior.",
-      "With 34 years of public service experience, Brian brings wisdom, humility, and a deep commitment to servant leadership. His life is grounded in the calling to live out his faith through every thread of life and everyday moments.",
-      "Guided by the principles of rejecting passivity, accepting responsibility, leading courageously, and expecting God's greater reward, Brian strives to point others to the hope and truth found only in Christ.",
-      "Brian is married to Cheri Lee, and they cherish living close to their sons and their families. An avid outdoorsman, he finds peace and renewal in God's creation — whether in the woods or on the water."
-    ]
-  },
-  'cooke': {
-    initials: 'CC',
-    name: 'Carol McCrary Cooke',
-    role: 'Women\'s Ministry Director',
-    bio: [
-      "Carol Cooke leads the Women's Ministry with a heart for helping women grow in faith and build meaningful connections. She facilitates Table Talk, a scripture-based discussion where women explore God's Word and apply it to everyday life.",
-      "Carol also directs GriefShare, a ministry very close to her heart, providing support and compassion to those navigating seasons of loss. She manages petrawomen.net, a resource that equips and inspires women in their walk with Christ.",
-      "Carol has called the St. Augustine area home for the past 50 years, where her family has deep roots. With two sons and their families, she cherishes the heritage of their family farm — a part of their story for four generations.",
-      "Throughout her life, Carol has held many leadership roles across the church, always with a heart for encouraging women and pointing them to Christ."
-    ]
-  },
-  'owens-s': {
-    initials: 'SO',
-    name: 'Stephanie Owens',
-    role: 'Children\'s Ministry Director',
-    bio: [
-      "Stephanie has a deep passion for seeing children grow in their faith and develop a personal relationship with Jesus Christ. She leads the children's programs with care and joy, ensuring that each class is Christ-centered, engaging, and age-appropriate.",
-      "Stephanie supports and coordinates the team of teachers and helpers each week, creating a safe and nurturing environment where kids can learn, worship, and thrive.",
-      "Outside of ministry, Stephanie and her husband Roger are blessed with two daughters who bring joy and laughter into their home, along with their two pups, Samson and Max, who are very much a part of the family.",
-      "Together, they love serving in the life of the church and building connections within their community."
-    ]
-  },
-  'mouse': {
-    initials: 'AM',
-    name: 'Alyssa Mouse',
-    role: 'Music Ministry Director',
-    bio: [
-      "Alyssa is one of Petra's founding members and still remembers attending one of the very first Sunday services on Palm Sunday at her grandmother Carol Cooke's back porch. She began playing guitar at 12 years old and has been faithfully serving on the worship team since middle school.",
-      "Her greatest desire in leading worship is to be used as a vessel for God, praying that the Holy Spirit would move in the hearts of the congregation as they lift their voices in praise.",
-      "Outside of church, Alyssa serves as a teacher in the St. Johns County School District. She views her classroom as an extension of her mission field, believing her calling is not only on the stage but also in the lives of her students.",
-      "\"Here I am, Lord, send me.\" — Isaiah 6:8"
-    ]
-  },
-  'wilson': {
-    initials: 'TW',
-    name: 'Tobias & Andrea Wilson',
-    role: 'Youth Ministry Directors',
-    bio: [
-      "Tobias and Andrea share a deep passion for teaching the next generation the Word of God. Throughout Tobias's military service, they remained actively involved in youth ministry at the churches they attended, using their personal journey to point young people to God's love and faithfulness.",
-      "Married for 17 years, they recently settled in Florida with their daughter. Tobias is retired from the U.S. Navy and now enjoys caring for their home and pursuing his love of photography. Andrea has worked in the medical field since 2011 and currently serves as a Nurse Practitioner.",
-      "Before marriage, Andrea was a music teacher and still enjoys playing music and reading in her free time. Together with their 9-year-old daughter, they love traveling to historical places and what they call 'Dadventures.'",
-      "They are grateful for the Lord bringing them to Petra and for the opportunity to serve Him and His people."
-    ]
-  },
-  'roy': {
-    initials: 'HR',
-    name: 'Heather Roy',
-    role: 'Ministry Coordinator',
-    bio: [
-      "Heather serves as Ministry Coordinator, supporting the many ministries and events that help our church family grow and thrive. She also helps keep our community connected through online platforms, sharing encouragement and ways to get involved.",
-      "Outside of church, Heather loves spending time outdoors, photographing wildlife, and exploring the beauty of nature. She also enjoys painting en plein air, scrapbooking, and thrifting.",
-      "Heather and her husband Michael have been married for over 21 years and are grateful to share their life with their daughter Shelby. She also enjoys caring for her animals and the companionship they bring.",
-      "Heather and Michael value the flexibility their family business provides, giving them the chance to travel to their favorite spots in the mountains and enjoy time together on hunting trips."
-    ]
-  },
-  'deacons': {
-    initials: '✝',
-    name: 'Board of Deacons',
-    role: 'Scott Miller · Mike Rabon · Danny Owens',
-    bio: [
-      "Deacons Scott Miller, Mike Rabon, and Danny Owens serve our church family with hearts devoted to Christ, providing care, prayer, and encouragement.",
-      "United in their desire to strengthen and support the body of Christ, they humbly point others to Jesus through faithful service."
-    ]
-  }
-};
+/* ============================================================
+   GOOGLE SHEET CSV URL — same sheet as the main website
+============================================================ */
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQSJduch1glSMbv-uCEYRDuKKrgZZLVZxIC9Tt1RaX5xb8t9DnXRjL9nxNCvU9eka0EBOglWTm2Zrqh/pub?gid=117596906&single=true&output=csv';
 
-const modalIcons = {
-  'owens': 'fa-user-tie',
-  'lee': 'fa-user-tie',
-  'cooke': 'fa-heart',
-  'owens-s': 'fa-child',
-  'mouse': 'fa-music',
-  'wilson': 'fa-user-friends',
-  'roy': 'fa-hands-helping',
-  'deacons': 'fa-cross'
-};
-
-function openModal(id) {
-  const l = leaders[id];
-  if (!l) return;
-  document.getElementById('modalAvatar').textContent = l.initials;
-  document.getElementById('modalName').textContent   = l.name;
-  document.getElementById('modalRole').textContent   = l.role;
-  document.getElementById('modalBio').innerHTML = l.bio.map(b => `<p>${b}</p>`).join('');
-  document.getElementById('modalOverlay').classList.add('active');
-  document.body.style.overflow = 'hidden';
+/* ============================================================
+   UTILITY: Convert Google Drive share link → embeddable URL
+============================================================ */
+function driveToEmbed(url) {
+    if (!url || !url.trim()) return null;
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    if (url.startsWith('http')) return url;
+    return null;
 }
 
+/* ============================================================
+   CSV PARSER
+============================================================ */
+function parseCSV(text) {
+    const rows = [];
+    let row = [], field = '', inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text[i], next = text[i + 1];
+        if (inQuotes) {
+            if (ch === '"' && next === '"') { field += '"'; i++; }
+            else if (ch === '"') { inQuotes = false; }
+            else { field += ch; }
+        } else {
+            if (ch === '"') { inQuotes = true; }
+            else if (ch === ',') { row.push(field); field = ''; }
+            else if (ch === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+            else if (ch !== '\r') { field += ch; }
+        }
+    }
+    if (row.length || field) { row.push(field); rows.push(row); }
+    return rows;
+}
+
+// Columns: Timestamp, Full Name, Role/Title, Initials, Email, Photo Link, Bio1-4
+function csvToTeam(rows) {
+    if (rows.length < 2) return [];
+    return rows.slice(1).map(r => {
+        const bio = [r[6], r[7], r[8], r[9]].filter(p => p && p.trim());
+        return {
+            initials: (r[3] || '').trim(),
+            name:     (r[1] || '').trim(),
+            role:     (r[2] || '').trim(),
+            email:    (r[4] || '').trim(),
+            photo:    driveToEmbed((r[5] || '').trim()),
+            bio:      bio.length ? bio : ['No bio provided.']
+        };
+    }).filter(p => p.name);
+}
+
+/* ============================================================
+   FALLBACK TEAM DATA
+============================================================ */
+const ldrFallback = [
+    { initials: 'TO', name: 'Ted Owens',            role: 'Senior Pastor',                          email: 'Pastor@PetraBaptist.com',   photo: null, bio: ["Pastor Ted leads Petra Baptist Church with a shepherd's heart and a vision for gospel transformation."] },
+    { initials: 'BL', name: 'Brian Lee',             role: 'Associate Pastor / Director of Men\'s Ministry', email: '',               photo: null, bio: ["Brian Lee serves as Associate Pastor and leads the Men's Ministry."] },
+    { initials: 'CC', name: 'Carol McCrary Cooke',   role: 'Women\'s Ministry Director',             email: '',                          photo: null, bio: ["Carol leads the Women's Ministry with a heart for helping women grow in faith."] },
+    { initials: 'SO', name: 'Stephanie Owens',       role: 'Children\'s Ministry Director',          email: '',                          photo: null, bio: ["Stephanie has a deep passion for seeing children grow in their faith."] },
+    { initials: 'AM', name: 'Alyssa Mouse',          role: 'Music Ministry Director',                email: '',                          photo: null, bio: ["Alyssa leads worship with a heart to be used as a vessel for God."] },
+    { initials: 'TW', name: 'Tobias & Andrea Wilson',role: 'Youth Ministry Directors',               email: '',                          photo: null, bio: ["Tobias and Andrea share a deep passion for teaching the next generation the Word of God."] },
+    { initials: 'HR', name: 'Heather Roy',           role: 'Ministry Coordinator',                   email: '',                          photo: null, bio: ["Heather serves as Ministry Coordinator, supporting the many ministries and events of the church."] },
+    { initials: '✝', name: 'Board of Deacons',      role: 'Scott Miller · Mike Rabon · Danny Owens', email: '',                         photo: null, bio: ["Our deacons serve the church family with hearts devoted to Christ."] }
+];
+
+/* ============================================================
+   CURRENT TEAM — set by renderTeam(), used by openModal()
+============================================================ */
+let currentTeam = [];
+
+/* ── Build Cards ── */
+function renderTeam(team) {
+    currentTeam = team;
+    const grid = document.querySelector('.leader-grid');
+    grid.innerHTML = '';
+    team.forEach((p, i) => {
+        const card = document.createElement('div');
+        card.className = 'leader-card';
+        const avatarHTML = p.photo
+            ? `<img src="${p.photo}" alt="${p.name}" loading="lazy">`
+            : p.initials;
+        card.innerHTML = `
+            <div class="leader-avatar">${avatarHTML}</div>
+            <h3>${p.name}</h3>
+            <p>${p.role}</p>
+        `;
+        card.onclick = () => openModal(i);
+        grid.appendChild(card);
+    });
+}
+
+/* ── Open Modal ── */
+function openModal(idx) {
+    const p = currentTeam[idx];
+    if (!p) return;
+
+    const avatarEl = document.getElementById('modalAvatar');
+    avatarEl.innerHTML = p.photo
+        ? `<img src="${p.photo}" alt="${p.name}">`
+        : p.initials;
+
+    document.getElementById('modalName').textContent = p.name;
+    document.getElementById('modalRole').textContent = p.role;
+
+    const emailEl = document.getElementById('modalEmail');
+    if (p.email) {
+        emailEl.innerHTML = `<a href="mailto:${p.email}">${p.email}</a>`;
+        emailEl.style.display = 'block';
+    } else {
+        emailEl.style.display = 'none';
+    }
+
+    document.getElementById('modalBio').innerHTML = p.bio.map(b => `<p>${b}</p>`).join('');
+    document.getElementById('modalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+/* ── Close Modal ── */
 function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('active');
-  document.body.style.overflow = '';
+    document.getElementById('modalOverlay').classList.remove('active');
+    document.body.style.overflow = '';
 }
 
 function handleOverlayClick(e) {
-  if (e.target === document.getElementById('modalOverlay')) closeModal();
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ============================================================
+   INITIALIZE — fetch sheet or fall back to hardcoded data
+============================================================ */
+async function init() {
+    let team = ldrFallback;
+    if (SHEET_CSV_URL && !SHEET_CSV_URL.includes('PASTE_YOUR')) {
+        try {
+            const resp = await fetch(SHEET_CSV_URL);
+            const text = await resp.text();
+            const rows = parseCSV(text);
+            const sheetTeam = csvToTeam(rows);
+            if (sheetTeam.length > 0) team = sheetTeam;
+        } catch(e) {
+            console.warn('Could not load sheet data — using fallback.', e);
+        }
+    }
+    renderTeam(team);
+}
+
+init();
 </script>
 
 </body>
