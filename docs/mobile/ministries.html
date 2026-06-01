@@ -263,49 +263,13 @@ body {
 
   <div class="page-title">Our Ministries</div>
 
-  <div class="ministry-grid">
-
-    <div class="ministry-card" onclick="openModal('petra-men')">
-      <div class="ministry-icon"><i class="fas fa-user-tie"></i></div>
-      <h3>Petra Men</h3>
+  <div class="ministry-grid" id="ministryGrid">
+    <!-- Cards rendered dynamically from Google Sheet -->
+    <div style="grid-column:1/-1; text-align:center; padding:30px; opacity:0.7; font-size:14px;">
+      Loading ministries…
     </div>
-
-    <div class="ministry-card" onclick="openModal('petra-women')">
-      <div class="ministry-icon"><i class="fas fa-heart"></i></div>
-      <h3>Petra Women</h3>
-    </div>
-
-    <div class="ministry-card" onclick="openModal('petra-teens')">
-      <div class="ministry-icon"><i class="fas fa-user-friends"></i></div>
-      <h3>Petra Teens</h3>
-    </div>
-
-    <div class="ministry-card" onclick="openModal('petra-seniors')">
-      <div class="ministry-icon"><i class="fas fa-hands-helping"></i></div>
-      <h3>Petra Senior Saints</h3>
-    </div>
-
-    <div class="ministry-card" onclick="openModal('petra-kids')">
-      <div class="ministry-icon"><i class="fas fa-child"></i></div>
-      <h3>Petra Kids</h3>
-    </div>
-
-    <div class="ministry-card" onclick="openModal('petra-couples')">
-      <div class="ministry-icon"><i class="fas fa-ring"></i></div>
-      <h3>Petra Couples</h3>
-    </div>
-
-    <div class="ministry-card" onclick="openModal('petra-grief')">
-      <div class="ministry-icon"><i class="fas fa-dove"></i></div>
-      <h3>Petra Grief Share</h3>
-    </div>
-
-    <div class="ministry-card" onclick="openModal('bible-fellowship')">
-      <div class="ministry-icon"><i class="fas fa-book-open"></i></div>
-      <h3>Bible Fellowship Groups</h3>
-    </div>
-
   </div>
+
 </div>
 
 <!-- Modal -->
@@ -342,93 +306,178 @@ body {
 </div>
 
 <script>
-const ministryData = {
-  'petra-men': {
-    icon: '👔',
-    title: 'Petra Men',
-    description: "Our Men's Ministry is committed to empowering men to live out their God-given purpose with strength, integrity, and courage. Through fellowship and biblical teaching, men are encouraged to grow spiritually and build lasting connections.",
-    time: 'Last Saturday of each month at 8:00 AM (Bible Breakfast & Fellowship)',
-    leader: 'Brian Lee — Associate Pastor'
-  },
-  'petra-women': {
-    icon: '🤍',
-    title: 'Petra Women',
-    description: "The Women's Ministry exists to encourage, enlighten, equip, and energize women to walk in their God-given purpose through His power. Gatherings focus on spiritual growth, meaningful connection, and uplifting fellowship.",
-    time: '3rd Saturday of each month at 9:30 AM (Table Talk with Carol Brunch)',
-    leader: 'Carol Cooke',
-    externalLink: 'https://petrawomen.net/'
-  },
-  'petra-teens': {
-    icon: '🙌',
-    title: 'Petra Teens',
-    description: 'Our Teen Ministry invites students in 6th–12th grade to dive into Scripture, explore real-life applications, and grow in their faith alongside a strong community. Using The Gospel Project curriculum, students journey through the Bible chronologically, discovering how every story points to Jesus.',
-    time: 'Wednesday Nights at 6:00 PM',
-    leader: 'Tobias & Andrea Wilson'
-  },
-  'petra-seniors': {
-    icon: '🕊️',
-    title: 'Petra Senior Saints',
-    description: 'Senior Saints is a vibrant ministry dedicated to encouraging, equipping, and engaging senior adults as vital members of the body of Christ. We believe every season of life has purpose, and we strive to help seniors grow spiritually, build meaningful community, and serve with joy.',
-    time: '3rd Thursday of each month',
-    leader: 'Debby Emerson'
-  },
-  'petra-kids': {
-    icon: '⭐',
-    title: 'Petra Kids',
-    description: "Our Kids Ministry provides a fun and engaging environment where children from Pre-K through 5th grade can grow in God's Word, build friendships, and develop a strong foundation in their faith. Through the AWANA curriculum, kids learn biblical truths, discover Jesus, and practice Christian living through interactive activities and games.",
-    time: 'Wednesday Nights at 6:00 PM',
-    leader: 'Stephanie Owens'
-  },
-  'petra-couples': {
-    icon: '💍',
-    title: 'Petra Couples',
-    description: 'The Couples Ministry is designed to help couples strengthen their relationship with Jesus Christ and one another. Through events and small groups, couples are encouraged to grow in their faith, deepen their connection, and build strong, Christ-centered marriages.',
-    time: 'As Scheduled — see Flocknotes or Events',
-    leader: 'Brian & Cheri Lee'
-  },
-  'petra-grief': {
-    icon: '🕊️',
-    title: 'Petra Grief Share',
-    description: 'GriefShare is a caring and supportive weekly group designed to help individuals navigate the pain of losing a loved one. Through expert-led videos, group discussion, and personal reflection, participants find comfort, understanding, and practical tools for healing and rebuilding their lives.',
-    time: 'Sundays from 3:00–5:00 PM',
-    leader: 'Carol Cooke'
-  },
-  'bible-fellowship': {
-    icon: '📖',
-    title: 'Bible Fellowship Groups',
-    description: "The Bible Fellowship Group is designed to help you dig deeper into God's Word and grow in your faith through meaningful study and discussion. Each gathering provides an opportunity to explore Scripture, gain practical insight, and connect with others in fellowship.",
-    time: 'Sundays at 8:00 AM'
-  }
-};
+// ── Google Sheet CSV URL ──────────────────────────────────────────────────
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0nMCiV-9ZI31hueyHzJPI7_3F95FMbuHTTcQbkYo_3DGA4z1LBuOk1IjtLyBAUSvhr05Jw4yq14GX/pub?gid=240712061&single=true&output=csv';
 
-function openModal(id) {
-  const m = ministryData[id];
+// ── Icon map: ministry name keywords → Font Awesome icon ─────────────────
+const ICON_MAP = [
+  { keys: ['men'],                icon: 'fa-user-tie'      },
+  { keys: ['women'],              icon: 'fa-heart'         },
+  { keys: ['teen','youth'],       icon: 'fa-user-friends'  },
+  { keys: ['senior','saint'],     icon: 'fa-hands-helping' },
+  { keys: ['kid','child'],        icon: 'fa-child'         },
+  { keys: ['couple','marriage'],  icon: 'fa-ring'          },
+  { keys: ['grief','share'],      icon: 'fa-dove'          },
+  { keys: ['bible','fellowship'], icon: 'fa-book-open'     },
+  { keys: ['worship','music'],    icon: 'fa-music'         },
+  { keys: ['outreach','mission'], icon: 'fa-hands'         },
+];
+
+function iconForName(name) {
+  const lower = name.toLowerCase();
+  for (const entry of ICON_MAP) {
+    if (entry.keys.some(k => lower.includes(k))) return entry.icon;
+  }
+  return 'fa-users';
+}
+
+// ── CSV parser (handles quoted fields with commas/newlines) ───────────────
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = '', inQuote = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQuote) {
+      if (ch === '"' && text[i+1] === '"') { field += '"'; i++; }
+      else if (ch === '"') inQuote = false;
+      else field += ch;
+    } else {
+      if (ch === '"') { inQuote = true; }
+      else if (ch === ',') { row.push(field.trim()); field = ''; }
+      else if (ch === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; }
+      else if (ch !== '\r') { field += ch; }
+    }
+  }
+  if (field || row.length) { row.push(field.trim()); rows.push(row); }
+  return rows;
+}
+
+// ── Drive link → embeddable image URL ────────────────────────────────────
+function driveUrl(raw) {
+  if (!raw) return '';
+  const m = raw.match(/[-\w]{25,}/);
+  return m ? `https://lh3.googleusercontent.com/d/${m[0]}` : raw;
+}
+
+// ── Stored ministries for modal use ──────────────────────────────────────
+let ministries = [];
+
+// ── Fetch & render ────────────────────────────────────────────────────────
+async function loadMinistries() {
+  const grid = document.getElementById('ministryGrid');
+  try {
+    const res  = await fetch(SHEET_CSV_URL);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    if (rows.length < 2) throw new Error('No data');
+
+    // Map headers (row 0) — skip Timestamp col
+    const headers = rows[0].map(h => h.toLowerCase().trim());
+    const col = name => headers.indexOf(name);
+
+    const iName    = col('ministry name');
+    const iAbout   = col('about');
+    const iWhen    = col('when we meet');
+    const iLoc     = col('location');
+    const iLeader  = col('leader / contact name');
+    const iEmail   = col('contact email (public)');
+    const iImg1    = col('image link 1 (main / featured photo)');
+    const iImg2    = col('image link 2');
+    const iImg3    = col('image link 3');
+    const iImg4    = col('image link 4');
+    const iImg5    = col('image link 5');
+
+    ministries = [];
+    const dataRows = rows.slice(1).filter(r => r[iName] && r[iName].trim());
+
+    dataRows.forEach((r, idx) => {
+      ministries.push({
+        idx,
+        name:   r[iName]   || '',
+        about:  r[iAbout]  || '',
+        when:   r[iWhen]   || '',
+        loc:    r[iLoc]    || '',
+        leader: r[iLeader] || '',
+        email:  r[iEmail]  || '',
+        imgs:   [r[iImg1], r[iImg2], r[iImg3], r[iImg4], r[iImg5]]
+                  .map(driveUrl).filter(Boolean)
+      });
+    });
+
+    if (ministries.length === 0) throw new Error('Empty');
+
+    grid.innerHTML = ministries.map((m, i) => {
+      const icon    = iconForName(m.name);
+      const imgHTML = m.imgs[0]
+        ? `<img src="${m.imgs[0]}" alt="${m.name}" style="width:56px;height:56px;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">`
+        : `<i class="fas ${icon}"></i>`;
+      return `
+        <div class="ministry-card" onclick="openModal(${i})">
+          <div class="ministry-icon">${imgHTML}</div>
+          <h3>${m.name}</h3>
+        </div>`;
+    }).join('');
+
+  } catch (e) {
+    // Fallback to hardcoded data
+    renderFallback();
+  }
+}
+
+// ── Open modal ────────────────────────────────────────────────────────────
+function openModal(idx) {
+  const m = ministries[idx];
   if (!m) return;
 
-  document.getElementById('modalIcon').textContent  = m.icon;
-  document.getElementById('modalTitle').textContent = m.title;
+  const icon = iconForName(m.name);
+  const iconEl = document.getElementById('modalIcon');
+  if (m.imgs[0]) {
+    iconEl.innerHTML = `<img src="${m.imgs[0]}" alt="${m.name}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;" onerror="this.innerHTML='<i class=\'fas ${icon}\'></i>'">`;
+  } else {
+    iconEl.innerHTML = `<i class="fas ${icon}" style="font-size:28px;color:#2e6aa9;"></i>`;
+  }
+  document.getElementById('modalTitle').textContent = m.name;
+
+  // Gallery (images 2–5)
+  let galleryHTML = '';
+  if (m.imgs.length > 1) {
+    const extras = m.imgs.slice(1);
+    galleryHTML = `
+      <div class="modal-section">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+          ${extras.map(src => `<img src="${src}" style="width:80px;height:80px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none'">`).join('')}
+        </div>
+      </div>`;
+  }
 
   let html = `
     <div class="modal-section">
-      <h4>About</h4>
-      <p>${m.description}</p>
+      <h4><i class="fas fa-info-circle" style="color:#2e6aa9;margin-right:6px;"></i>About</h4>
+      <p>${m.about}</p>
     </div>
+    ${galleryHTML}
     <div class="modal-section">
-      <h4>When We Meet</h4>
-      <p>${m.time}</p>
+      <h4><i class="fas fa-clock" style="color:#2e6aa9;margin-right:6px;"></i>When We Meet</h4>
+      <p>${m.when}</p>
     </div>`;
 
-  if (m.leader) {
-    html += `
+  if (m.loc) html += `
     <div class="modal-section">
-      <h4>Leader${m.leader.includes('&') ? 's' : ''}</h4>
+      <h4><i class="fas fa-map-marker-alt" style="color:#2e6aa9;margin-right:6px;"></i>Location</h4>
+      <p>${m.loc}</p>
+    </div>`;
+
+  if (m.leader) html += `
+    <div class="modal-section">
+      <h4><i class="fas fa-user" style="color:#2e6aa9;margin-right:6px;"></i>Leader</h4>
       <p>${m.leader}</p>
     </div>`;
-  }
 
-  if (m.externalLink) {
-    html += `<a class="external-btn" href="${m.externalLink}" target="_blank" rel="noopener noreferrer">Visit PetraWomen.net ↗</a>`;
-  }
+  if (m.email) html += `
+    <div class="modal-section">
+      <h4><i class="fas fa-envelope" style="color:#2e6aa9;margin-right:6px;"></i>Contact</h4>
+      <p><a href="mailto:${m.email}" style="color:#2e6aa9;">${m.email}</a></p>
+    </div>`;
 
   document.getElementById('modalBody').innerHTML = html;
   document.getElementById('modalOverlay').classList.add('active');
@@ -444,9 +493,31 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('modalOverlay')) closeModal();
 }
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeModal();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ── Fallback (hardcoded) ──────────────────────────────────────────────────
+function renderFallback() {
+  const fallback = [
+    { name:'Petra Men',             icon:'fa-user-tie',      about:"Our Men's Ministry is committed to empowering men to live out their God-given purpose with strength, integrity, and courage.", when:'Last Saturday of each month at 8:00 AM', loc:'', leader:'Brian Lee — Associate Pastor', email:'', imgs:[] },
+    { name:'Petra Women',           icon:'fa-heart',         about:"The Women's Ministry exists to encourage, enlighten, equip, and energize women to walk in their God-given purpose.", when:'3rd Saturday of each month at 9:30 AM', loc:'', leader:'Carol Cooke', email:'', imgs:[] },
+    { name:'Petra Teens',           icon:'fa-user-friends',  about:'Our Teen Ministry invites students in 6th–12th grade to dive into Scripture and grow in their faith.', when:'Wednesday Nights at 6:00 PM', loc:'', leader:'Tobias & Andrea Wilson', email:'', imgs:[] },
+    { name:'Petra Senior Saints',   icon:'fa-hands-helping', about:'Senior Saints is dedicated to encouraging and equipping senior adults as vital members of the body of Christ.', when:'3rd Thursday of each month', loc:'', leader:'Debby Emerson', email:'', imgs:[] },
+    { name:'Petra Kids',            icon:'fa-child',         about:"Our Kids Ministry provides a fun environment where children Pre-K through 5th grade can grow in God's Word.", when:'Wednesday Nights at 6:00 PM', loc:'', leader:'Stephanie Owens', email:'', imgs:[] },
+    { name:'Petra Couples',         icon:'fa-ring',          about:'The Couples Ministry helps couples strengthen their relationship with Jesus Christ and one another.', when:'As Scheduled — see Flocknotes or Events', loc:'', leader:'Brian & Cheri Lee', email:'', imgs:[] },
+    { name:'Petra Grief Share',     icon:'fa-dove',          about:'GriefShare is a caring weekly group designed to help individuals navigate the pain of losing a loved one.', when:'Sundays from 3:00–5:00 PM', loc:'', leader:'Carol Cooke', email:'', imgs:[] },
+    { name:'Bible Fellowship Groups',icon:'fa-book-open',    about:"The Bible Fellowship Group helps you dig deeper into God's Word through meaningful study and discussion.", when:'Sundays at 8:00 AM', loc:'', leader:'', email:'', imgs:[] },
+  ];
+  ministries = fallback.map((m, idx) => ({ idx, ...m }));
+  const grid = document.getElementById('ministryGrid');
+  grid.innerHTML = ministries.map((m, i) => `
+    <div class="ministry-card" onclick="openModal(${i})">
+      <div class="ministry-icon"><i class="fas ${m.icon}"></i></div>
+      <h3>${m.name}</h3>
+    </div>`).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadMinistries();
 </script>
 
 </body>

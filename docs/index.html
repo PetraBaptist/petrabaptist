@@ -129,70 +129,9 @@
                 <h2 class="section-title">Our Ministries</h2>
                 <div class="section-divider"></div>
             </div>
-            <div class="ministries-grid">
-                <!-- Petra Men -->
-                <div class="ministry-card-compact" data-ministry="petra-men">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-user-tie"></i>
-                    </div>
-                    <h3>Petra Men</h3>
-                </div>
-
-                <!-- Petra Women -->
-                <div class="ministry-card-compact" data-ministry="petra-women">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-heart"></i>
-                    </div>
-                    <h3>Petra Women</h3>
-                </div>
-
-                <!-- Petra Teens -->
-                <div class="ministry-card-compact" data-ministry="petra-teens">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-user-friends"></i>
-                    </div>
-                    <h3>Petra Teens</h3>
-                </div>
-
-                <!-- Petra Senior Saints -->
-                <div class="ministry-card-compact" data-ministry="petra-seniors">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-hands-helping"></i>
-                    </div>
-                    <h3>Petra Senior Saints</h3>
-                </div>
-
-                <!-- Petra Kids -->
-                <div class="ministry-card-compact" data-ministry="petra-kids">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-child"></i>
-                    </div>
-                    <h3>Petra Kids</h3>
-                </div>
-
-                <!-- Petra Couples -->
-                <div class="ministry-card-compact" data-ministry="petra-couples">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-ring"></i>
-                    </div>
-                    <h3>Petra Couples</h3>
-                </div>
-
-                <!-- Petra Grief Share -->
-                <div class="ministry-card-compact" data-ministry="petra-grief">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-dove"></i>
-                    </div>
-                    <h3>Petra Grief Share</h3>
-                </div>
-
-                <!-- Bible Fellowship Groups -->
-                <div class="ministry-card-compact" data-ministry="bible-fellowship">
-                    <div class="ministry-icon-compact">
-                        <i class="fas fa-book-open"></i>
-                    </div>
-                    <h3>Bible Fellowship Groups</h3>
-                </div>
+            <div class="ministries-grid" id="ministriesGrid">
+                <!-- Rendered dynamically from Google Sheet -->
+                <div style="grid-column:1/-1;text-align:center;padding:30px;opacity:0.6;">Loading ministries…</div>
             </div>
         </div>
     </section>
@@ -452,6 +391,154 @@
     </footer>
 
     <!-- External JavaScript -->
+    <script>
+    // ── Ministries — Google Sheet CSV Engine ─────────────────────────────
+    const MINISTRY_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0nMCiV-9ZI31hueyHzJPI7_3F95FMbuHTTcQbkYo_3DGA4z1LBuOk1IjtLyBAUSvhr05Jw4yq14GX/pub?gid=240712061&single=true&output=csv';
+
+    const MINISTRY_ICON_MAP = [
+      { keys: ['men'],                icon: 'fa-user-tie'      },
+      { keys: ['women'],              icon: 'fa-heart'         },
+      { keys: ['teen','youth'],       icon: 'fa-user-friends'  },
+      { keys: ['senior','saint'],     icon: 'fa-hands-helping' },
+      { keys: ['kid','child'],        icon: 'fa-child'         },
+      { keys: ['couple','marriage'],  icon: 'fa-ring'          },
+      { keys: ['grief','share'],      icon: 'fa-dove'          },
+      { keys: ['bible','fellowship'], icon: 'fa-book-open'     },
+      { keys: ['worship','music'],    icon: 'fa-music'         },
+      { keys: ['outreach','mission'], icon: 'fa-hands'         },
+    ];
+
+    function ministryIconFor(name) {
+      const lower = name.toLowerCase();
+      for (const e of MINISTRY_ICON_MAP) {
+        if (e.keys.some(k => lower.includes(k))) return e.icon;
+      }
+      return 'fa-users';
+    }
+
+    function parseMinistryCSV(text) {
+      const rows = []; let row = [], field = '', inQ = false;
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (inQ) {
+          if (ch === '"' && text[i+1] === '"') { field += '"'; i++; }
+          else if (ch === '"') inQ = false;
+          else field += ch;
+        } else {
+          if (ch === '"') inQ = true;
+          else if (ch === ',') { row.push(field.trim()); field = ''; }
+          else if (ch === '\n') { row.push(field.trim()); rows.push(row); row = []; field = ''; }
+          else if (ch !== '\r') field += ch;
+        }
+      }
+      if (field || row.length) { row.push(field.trim()); rows.push(row); }
+      return rows;
+    }
+
+    function ministryDriveUrl(raw) {
+      if (!raw) return '';
+      const m = raw.match(/[-\w]{25,}/);
+      return m ? `https://lh3.googleusercontent.com/d/${m[0]}` : raw;
+    }
+
+    let siteMinistries = [];
+
+    async function loadSiteMinistries() {
+      const grid = document.getElementById('ministriesGrid');
+      try {
+        const res  = await fetch(MINISTRY_CSV);
+        const text = await res.text();
+        const rows = parseMinistryCSV(text);
+        if (rows.length < 2) throw new Error('empty');
+        const headers = rows[0].map(h => h.toLowerCase().trim());
+        const col = n => headers.indexOf(n);
+        const iName   = col('ministry name');
+        const iAbout  = col('about');
+        const iWhen   = col('when we meet');
+        const iLoc    = col('location');
+        const iLeader = col('leader / contact name');
+        const iEmail  = col('contact email (public)');
+        const iImgs   = [col('image link 1 (main / featured photo)'), col('image link 2'), col('image link 3'), col('image link 4'), col('image link 5')];
+
+        siteMinistries = rows.slice(1)
+          .filter(r => r[iName] && r[iName].trim())
+          .map((r, idx) => ({
+            idx, name: r[iName]||'', about: r[iAbout]||'',
+            when: r[iWhen]||'', loc: r[iLoc]||'',
+            leader: r[iLeader]||'', email: r[iEmail]||'',
+            imgs: iImgs.map(i => ministryDriveUrl(r[i])).filter(Boolean)
+          }));
+
+        if (!siteMinistries.length) throw new Error('no rows');
+
+        grid.innerHTML = siteMinistries.map((m, i) => {
+          const icon = ministryIconFor(m.name);
+          const imgHTML = m.imgs[0]
+            ? `<img src="${m.imgs[0]}" alt="${m.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">`
+            : `<i class="fas ${icon}"></i>`;
+          return `<div class="ministry-card-compact" onclick="openSiteMinistryModal(${i})">
+                    <div class="ministry-icon-compact">${imgHTML}</div>
+                    <h3>${m.name}</h3>
+                  </div>`;
+        }).join('');
+
+      } catch(e) {
+        renderSiteMinistriesFallback();
+      }
+    }
+
+    function openSiteMinistryModal(idx) {
+      const m = siteMinistries[idx];
+      if (!m) return;
+      const icon = ministryIconFor(m.name);
+      const modalIconEl = document.querySelector('.ministry-modal-icon');
+      if (modalIconEl) {
+        modalIconEl.innerHTML = m.imgs[0]
+          ? `<img src="${m.imgs[0]}" alt="${m.name}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" onerror="this.innerHTML='<i class=\'fas ${icon}\'></i>'">`
+          : `<i class="fas ${icon}"></i>`;
+      }
+      document.getElementById('modalTitle').textContent = m.name;
+
+      let galleryHTML = '';
+      if (m.imgs.length > 1) {
+        galleryHTML = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px;">
+          ${m.imgs.slice(1).map(src => `<img src="${src}" style="width:80px;height:80px;border-radius:8px;object-fit:cover;" onerror="this.style.display='none'">`).join('')}
+        </div>`;
+      }
+
+      let html = `<p>${m.about}</p>${galleryHTML}`;
+      if (m.when)   html += `<h4><i class="fas fa-clock" style="margin-right:6px;color:var(--primary-blue,#2e6aa9)"></i>When We Meet</h4><p>${m.when}</p>`;
+      if (m.loc)    html += `<h4><i class="fas fa-map-marker-alt" style="margin-right:6px;color:var(--primary-blue,#2e6aa9)"></i>Location</h4><p>${m.loc}</p>`;
+      if (m.leader) html += `<h4><i class="fas fa-user" style="margin-right:6px;color:var(--primary-blue,#2e6aa9)"></i>Leader</h4><p>${m.leader}</p>`;
+      if (m.email)  html += `<h4><i class="fas fa-envelope" style="margin-right:6px;color:var(--primary-blue,#2e6aa9)"></i>Contact</h4><p><a href="mailto:${m.email}">${m.email}</a></p>`;
+
+      document.getElementById('modalContent').innerHTML = html;
+      const modal = document.getElementById('ministryModal');
+      if (modal) modal.classList.add('active');
+    }
+
+    function renderSiteMinistriesFallback() {
+      const fallback = [
+        { name:'Petra Men', icon:'fa-user-tie', about:"Our Men's Ministry empowers men to live out their God-given purpose.", when:'Last Saturday at 8:00 AM', loc:'', leader:'Brian Lee', email:'', imgs:[] },
+        { name:'Petra Women', icon:'fa-heart', about:"The Women's Ministry encourages women to walk in their God-given purpose.", when:'3rd Saturday at 9:30 AM', loc:'', leader:'Carol Cooke', email:'', imgs:[] },
+        { name:'Petra Teens', icon:'fa-user-friends', about:'Teen Ministry for students 6th–12th grade.', when:'Wednesday at 6:00 PM', loc:'', leader:'Tobias & Andrea Wilson', email:'', imgs:[] },
+        { name:'Petra Senior Saints', icon:'fa-hands-helping', about:'Dedicated to encouraging senior adults as vital members of the church.', when:'3rd Thursday of each month', loc:'', leader:'Debby Emerson', email:'', imgs:[] },
+        { name:'Petra Kids', icon:'fa-child', about:"Kids Ministry for Pre-K through 5th grade.", when:'Wednesday at 6:00 PM', loc:'', leader:'Stephanie Owens', email:'', imgs:[] },
+        { name:'Petra Couples', icon:'fa-ring', about:'Helping couples build Christ-centered marriages.', when:'As Scheduled', loc:'', leader:'Brian & Cheri Lee', email:'', imgs:[] },
+        { name:'Petra Grief Share', icon:'fa-dove', about:'Weekly support group for those navigating loss.', when:'Sundays 3:00–5:00 PM', loc:'', leader:'Carol Cooke', email:'', imgs:[] },
+        { name:'Bible Fellowship Groups', icon:'fa-book-open', about:"Dig deeper into God's Word through meaningful study.", when:'Sundays at 8:00 AM', loc:'', leader:'', email:'', imgs:[] },
+      ];
+      siteMinistries = fallback.map((m, idx) => ({ idx, ...m }));
+      const grid = document.getElementById('ministriesGrid');
+      grid.innerHTML = siteMinistries.map((m, i) => `
+        <div class="ministry-card-compact" onclick="openSiteMinistryModal(${i})">
+          <div class="ministry-icon-compact"><i class="fas ${m.icon}"></i></div>
+          <h3>${m.name}</h3>
+        </div>`).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', loadSiteMinistries);
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
