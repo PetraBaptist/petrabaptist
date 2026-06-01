@@ -473,11 +473,8 @@
 
         grid.innerHTML = siteMinistries.map((m, i) => {
           const icon = ministryIconFor(m.name);
-          const imgHTML = m.imgs[0]
-            ? `<img src="${m.imgs[0]}" alt="${m.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;" onerror="this.style.display='none'">`
-            : `<i class="fas ${icon}"></i>`;
           return `<div class="ministry-card-compact" onclick="openSiteMinistryModal(${i})">
-                    <div class="ministry-icon-compact">${imgHTML}</div>
+                    <div class="ministry-icon-compact"><i class="fas ${icon}"></i></div>
                     <h3>${m.name}</h3>
                   </div>`;
         }).join('');
@@ -493,9 +490,7 @@
       const icon = ministryIconFor(m.name);
       const modalIconEl = document.querySelector('.ministry-modal-icon');
       if (modalIconEl) {
-        modalIconEl.innerHTML = m.imgs[0]
-          ? `<img src="${m.imgs[0]}" alt="${m.name}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" onerror="this.innerHTML='<i class=\'fas ${icon}\'></i>'">`
-          : `<i class="fas ${icon}"></i>`;
+        modalIconEl.innerHTML = `<i class="fas ${icon}"></i>`;
       }
       document.getElementById('modalTitle').textContent = m.name;
 
