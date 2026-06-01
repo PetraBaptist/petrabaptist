@@ -431,14 +431,13 @@ function openModal(idx) {
   iconEl.innerHTML = `<i class="fas ${icon}" style="font-size:28px;color:#2e6aa9;"></i>`;
   document.getElementById('modalTitle').textContent = m.name;
 
-  // Gallery (images 2–5)
+  // Gallery (all images 1–5)
   let galleryHTML = '';
-  if (m.imgs.length > 1) {
-    const extras = m.imgs.slice(1);
+  if (m.imgs.length > 0) {
     galleryHTML = `
       <div class="modal-section">
         <div style="display:flex;flex-direction:column;gap:12px;margin-top:6px;">
-          ${extras.map(src => `<img src="${src}" style="width:100%;height:auto;border-radius:12px;display:block;" onerror="this.style.display='none'">`).join('')}
+          ${m.imgs.map(src => `<img src="${src}" style="width:100%;height:auto;border-radius:12px;display:block;" onerror="this.style.display='none'">`).join('')}
         </div>
       </div>`;
   }

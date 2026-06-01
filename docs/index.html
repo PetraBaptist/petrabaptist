@@ -495,9 +495,9 @@
       document.getElementById('modalTitle').textContent = m.name;
 
       let galleryHTML = '';
-      if (m.imgs.length > 1) {
+      if (m.imgs.length > 0) {
         galleryHTML = `<div style="display:flex;flex-direction:column;gap:12px;margin:10px 0 16px;">
-          ${m.imgs.slice(1).map(src => `<img src="${src}" style="width:100%;height:auto;border-radius:12px;display:block;" onerror="this.style.display='none'">`).join('')}
+          ${m.imgs.map(src => `<img src="${src}" style="width:100%;height:auto;border-radius:12px;display:block;" onerror="this.style.display='none'">`).join('')}
         </div>`;
       }
 
