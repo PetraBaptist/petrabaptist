@@ -3,7 +3,7 @@
   "appName": "Petra Baptist",
   "webDir": "docs",
   "server": {
-    "url": "https://petrabaptist.github.io/petrabaptist/mobile/",
+    "url": "https://app.petrabaptist.com/mobile/",
     "cleartext": false
   },
   "plugins": {
