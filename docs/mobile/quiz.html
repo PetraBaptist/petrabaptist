@@ -151,12 +151,17 @@
     cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
 
-  .challenge-promo {
-    text-align: center; padding: 12px;
-    font-size: 0.72rem; color: white;
-    text-decoration: underline;
-    cursor: pointer;
+  .challenge-promo-wrap { text-align: center; padding: 4px 0 12px; }
+  .challenge-promo-btn {
+    display: inline-block;
+    background: #f2a900; color: #1d4f7a;
+    border: none; border-radius: 10px;
+    padding: 14px 22px; font-size: 0.8rem; font-weight: bold;
+    letter-spacing: 0.02em;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
+  .challenge-promo-btn:active { opacity: 0.85; }
 
   /* ── FOOTER NAV (same as index.html) ── */
   .footer-banner {
@@ -417,7 +422,9 @@
         <div class="complete-note">Come back tomorrow for 5 new questions</div>
         <button class="challenge-share-btn" onclick="shareChallenge(${score}, ${streak})">Share My Results</button>
       </div>
-      <div class="challenge-promo" onclick="window.open('https://practicalfaith.net/quiz_links.html','_blank')">🎯 For more Bible Quiz fun, check out our Quiz Apps →</div>
+      <div class="challenge-promo-wrap">
+        <button class="challenge-promo-btn" onclick="window.open('https://practicalfaith.net/quiz_links.html','_blank')">🎯 More Bible Quiz Apps →</button>
+      </div>
     `;
   }
 
