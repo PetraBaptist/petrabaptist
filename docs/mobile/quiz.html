@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Petra Baptist Church — Bible Challenge</title>
+
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #2e6aa9, #338cd0);
+    color: white;
+  }
+
+  .app-frame {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ── HEADER ── */
+  .page-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 14px 16px 10px;
+    box-sizing: border-box;
+  }
+  .back-btn {
+    background: rgba(255,255,255,0.18);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .back-btn:active { background: rgba(255,255,255,0.32); }
+  .page-title {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 52px; /* balances the back button so title stays visually centered */
+  }
+
+  /* ── CHALLENGE BODY ── */
+  .challenge-wrap {
+    flex: 1;
+    width: 100%;
+    max-width: 420px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 16px 100px;
+    gap: 12px;
+    overflow-y: auto;
+  }
+  .challenge-date {
+    font-size: 0.72rem; color: rgba(255,255,255,0.75);
+    text-align: center; letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .challenge-meta {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; font-weight: bold;
+    color: white;
+  }
+  .challenge-dots { display: flex; justify-content: center; gap: 8px; margin: 4px 0; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.6); background: rgba(255,255,255,0.15); display: inline-block; }
+  .dot.dot-active { background: white; border-color: white; }
+  .dot.dot-correct { background: #4caf50; border-color: #4caf50; }
+  .dot.dot-wrong { background: #e05c5c; border-color: #e05c5c; }
+
+  .challenge-card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  }
+  .challenge-question {
+    font-size: 1.05rem; font-weight: bold;
+    color: #1d4f7a; text-align: center; line-height: 1.4;
+  }
+  .challenge-choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    background: white; border: 2px solid #2e6aa9;
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 0.85rem; font-weight: bold;
+    color: #2e6aa9; text-align: left; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .choice-btn:active { background: #2e6aa9; color: white; }
+  .choice-btn.correct { background: #e3f3e3; border-color: #2e7d32; color: #2e7d32; }
+  .choice-btn.incorrect { background: #fbe4e4; border-color: #b23a3a; color: #b23a3a; }
+  .choice-btn.disabled { cursor: default; opacity: 0.95; }
+
+  .challenge-feedback {
+    font-size: 0.85rem; font-weight: bold;
+    text-align: center; padding: 8px; border-radius: 8px;
+  }
+  .challenge-feedback.good { color: #2e7d32; }
+  .challenge-feedback.bad { color: #b23a3a; }
+
+  .challenge-reference {
+    font-size: 0.72rem; color: #55708a;
+    text-align: center; font-style: italic;
+    cursor: pointer; padding: 4px;
+  }
+
+  .challenge-next-btn {
+    background: #1d4f7a; color: white;
+    border: none; border-radius: 10px;
+    padding: 14px; font-size: 0.8rem; font-weight: bold;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .challenge-next-btn:active { opacity: 0.85; }
+
+  .challenge-complete {
+    background: white; border-radius: 14px; padding: 30px 20px;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+  }
+  .complete-icon { font-size: 2.6rem; }
+  .complete-title { font-size: 1.1rem; font-weight: bold; color: #1d4f7a; letter-spacing: 0.03em; }
+  .complete-score, .complete-streak { font-size: 0.95rem; color: #333; font-weight: bold; }
+  .complete-note { font-size: 0.7rem; color: #777; font-style: italic; margin-top: 4px; }
+
+  .challenge-share-btn {
+    margin-top: 10px;
+    background: #2e6aa9; color: white;
+    border: none; border-radius: 10px;
+    padding: 14px 26px; font-size: 0.75rem; font-weight: bold;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+
+  .challenge-promo {
+    text-align: center; padding: 12px;
+    font-size: 0.72rem; color: white;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  /* ── FOOTER NAV (same as index.html) ── */
+  .footer-banner {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
+    background: #1d4f7a;
+    box-shadow: 0 -3px 8px rgba(0,0,0,0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0;
+    z-index: 100;
+    box-sizing: border-box;
+  }
+  .banner-row { display: flex; justify-content: center; gap: 8px; margin: 4px 0; }
+  .banner-row div {
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+  .banner-row div:hover { background: rgba(255,255,255,0.3); }
+  .banner-row div.active {
+    background: rgba(255,255,255,0.6);
+    color: #1d4f7a;
+    box-shadow: 0 0 12px rgba(255,255,255,0.9);
+  }
+  .banner-row div.home-btn { flex: 2.2; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.5); color: white; }
+  .banner-row div.home-btn.active { color: white; }
+
+  @media (max-width: 480px) {
+    .banner-row div { font-size: 14px; padding: 8px 10px; }
+  }
+</style>
+</head>
+
+<body>
+
+<div class="app-frame">
+
+  <div class="page-header">
+    <div class="page-title" style="margin-right:0;">Bible Challenge</div>
+  </div>
+
+  <div class="challenge-wrap" id="challenge-body">
+    <div class="challenge-date">Loading&hellip;</div>
+  </div>
+
+  <!-- Footer Nav -->
+  <div class="footer-banner">
+    <div class="banner-row">
+      <div onclick="window.location.href='sermons.html'">Sermons</div>
+      <div class="home-btn" onclick="window.location.href='index.html'">Home</div>
+      <div onclick="window.location.href='bibles.html'">Bibles</div>
+    </div>
+    <div class="banner-row">
+      <div onclick="window.location.href='ministries.html'">Ministries</div>
+      <div onclick="window.location.href='flocknotes.html'">Flocknotes</div>
+      <div onclick="window.location.href='prayer.html'">Prayer</div>
+      <div onclick="window.location.href='give.html'">Give</div>
+    </div>
+    <div class="banner-row">
+      <div onclick="window.location.href='facebook.html'">Facebook</div>
+      <div onclick="window.location.href='contact.html'">Contact</div>
+      <div onclick="window.location.href='events.html'">Events</div>
+      <div class="active" onclick="window.location.href='quiz.html'">Quiz</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const DAILY_COUNT = 5;
+  let challengePool = null;
+  let todayQuestions = null;
+  let currentIndex = 0;
+  let challengeScore = 0;
+  let answeredLog = [];
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function getDateKey(offsetDays) {
+    const d = new Date();
+    if (offsetDays) d.setDate(d.getDate() + offsetDays);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function formatDateLong() {
+    return new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function seededRandom(seed) {
+    let t = seed;
+    return function () {
+      t |= 0; t = (t + 0x6D2B79F5) | 0;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function getDayOfYear() {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), 0, 0);
+    const diff = now - start;
+    return Math.floor(diff / 86400000);
+  }
+
+  function pickTodayQuestions(pool, n) {
+    const now = new Date();
+    const seed = now.getFullYear() * 1000 + getDayOfYear();
+    const rand = seededRandom(seed);
+    const used = new Set();
+    const picks = [];
+    while (picks.length < n) {
+      const i = Math.floor(rand() * pool.length);
+      if (!used.has(i)) { used.add(i); picks.push(pool[i]); }
+    }
+    return picks;
+  }
+
+  async function loadChallengePool() {
+    if (challengePool) return challengePool;
+    const res = await fetch('challenge-questions.json');
+    challengePool = await res.json();
+    return challengePool;
+  }
+
+  async function openChallenge() {
+    const todayKey = getDateKey(0);
+    const completedDate = localStorage.getItem('pb_challenge_date');
+    if (completedDate === todayKey) {
+      const score = parseInt(localStorage.getItem('pb_challenge_score') || '0', 10);
+      const streak = parseInt(localStorage.getItem('pb_challenge_streak') || '0', 10);
+      renderChallengeCompletion(score, streak, true);
+      return;
+    }
+    try {
+      const pool = await loadChallengePool();
+      todayQuestions = pickTodayQuestions(pool, DAILY_COUNT);
+      currentIndex = 0;
+      challengeScore = 0;
+      answeredLog = [];
+      renderChallengeQuestion();
+    } catch (e) {
+      document.getElementById('challenge-body').innerHTML = '<div class="challenge-date">Unable to load today\'s challenge. Please try again.</div>';
+    }
+  }
+
+  function renderChallengeDots(currentCorrectOverride) {
+    return todayQuestions.map((_, i) => {
+      if (i < currentIndex) return answeredLog[i] ? 'dot-correct' : 'dot-wrong';
+      if (i === currentIndex && currentCorrectOverride !== undefined) return currentCorrectOverride ? 'dot-correct' : 'dot-wrong';
+      if (i === currentIndex) return 'dot-active';
+      return '';
+    });
+  }
+
+  function renderChallengeQuestion() {
+    const q = todayQuestions[currentIndex];
+    const dots = renderChallengeDots();
+    document.getElementById('challenge-body').innerHTML = `
+      <div class="challenge-date">${formatDateLong()}</div>
+      <div class="challenge-meta"><span>Question ${currentIndex + 1} of ${todayQuestions.length}</span><span>Score: ${challengeScore}</span></div>
+      <div class="challenge-dots">${dots.map(c => `<span class="dot ${c}"></span>`).join('')}</div>
+      <div class="challenge-card">
+        <div class="challenge-question">${escapeHtml(q.question)}</div>
+        <div class="challenge-choices">
+          ${q.choices.map((c, i) => `<button class="choice-btn" onclick="selectChallengeChoice(${i})">${String.fromCharCode(65 + i)}) ${escapeHtml(c)}</button>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function selectChallengeChoice(i) {
+    const q = todayQuestions[currentIndex];
+    const correct = i === q.answer;
+    answeredLog[currentIndex] = correct;
+    if (correct) challengeScore++;
+    const dots = renderChallengeDots(correct);
+    document.getElementById('challenge-body').innerHTML = `
+      <div class="challenge-date">${formatDateLong()}</div>
+      <div class="challenge-meta"><span>Question ${currentIndex + 1} of ${todayQuestions.length}</span><span>Score: ${challengeScore}</span></div>
+      <div class="challenge-dots">${dots.map(c => `<span class="dot ${c}"></span>`).join('')}</div>
+      <div class="challenge-card">
+        <div class="challenge-question">${escapeHtml(q.question)}</div>
+        <div class="challenge-choices">
+          ${q.choices.map((c, idx) => {
+            let cls = 'choice-btn disabled';
+            if (idx === q.answer) cls += ' correct';
+            else if (idx === i) cls += ' incorrect';
+            return `<button class="${cls}" disabled>${String.fromCharCode(65 + idx)}) ${escapeHtml(c)}</button>`;
+          }).join('')}
+        </div>
+        <div class="challenge-feedback ${correct ? 'good' : 'bad'}">${correct ? '✅ Correct!' : '❌ Correct answer: ' + escapeHtml(q.choices[q.answer])}</div>
+        <div class="challenge-reference" id="challenge-verse-toggle" data-ref="${escapeHtml(q.reference)}" data-verse="${escapeHtml(q.verseText)}" data-revealed="0" onclick="toggleChallengeVerse()">📖 ${escapeHtml(q.reference)} — tap to see verse</div>
+        <button class="challenge-next-btn" onclick="nextChallengeQuestion()">${currentIndex + 1 < todayQuestions.length ? 'Next Question' : 'See Results'}</button>
+      </div>
+    `;
+  }
+
+  function toggleChallengeVerse() {
+    const el = document.getElementById('challenge-verse-toggle');
+    if (!el) return;
+    if (el.dataset.revealed === '1') {
+      el.textContent = '📖 ' + el.dataset.ref + ' — tap to see verse';
+      el.dataset.revealed = '0';
+    } else {
+      el.textContent = '"' + el.dataset.verse + '" — ' + el.dataset.ref;
+      el.dataset.revealed = '1';
+    }
+  }
+
+  function nextChallengeQuestion() {
+    currentIndex++;
+    if (currentIndex >= todayQuestions.length) {
+      finishChallenge();
+    } else {
+      renderChallengeQuestion();
+    }
+  }
+
+  function finishChallenge() {
+    const todayKey = getDateKey(0);
+    const yesterdayKey = getDateKey(-1);
+    const lastDate = localStorage.getItem('pb_challenge_date');
+    let streak = parseInt(localStorage.getItem('pb_challenge_streak') || '0', 10);
+    if (lastDate === yesterdayKey) {
+      streak = streak + 1;
+    } else if (lastDate !== todayKey) {
+      streak = 1;
+    }
+    localStorage.setItem('pb_challenge_date', todayKey);
+    localStorage.setItem('pb_challenge_score', String(challengeScore));
+    localStorage.setItem('pb_challenge_streak', String(streak));
+    renderChallengeCompletion(challengeScore, streak, false);
+  }
+
+  function renderChallengeCompletion(score, streak, alreadyDone) {
+    document.getElementById('challenge-body').innerHTML = `
+      <div class="challenge-date">${formatDateLong()}</div>
+      <div class="challenge-complete">
+        <div class="complete-icon">🏆</div>
+        <div class="complete-title">${alreadyDone ? "Today's Challenge Complete" : 'Daily Complete!'}</div>
+        <div class="complete-score">Score: ${score} / ${DAILY_COUNT}</div>
+        <div class="complete-streak">🔥 Daily Streak: ${streak}</div>
+        <div class="complete-note">Come back tomorrow for 5 new questions</div>
+        <button class="challenge-share-btn" onclick="shareChallenge(${score}, ${streak})">Share My Results</button>
+      </div>
+      <div class="challenge-promo" onclick="window.open('https://practicalfaith.net/quiz_links.html','_blank')">🎯 For more Bible Quiz fun, check out our Quiz Apps →</div>
+    `;
+  }
+
+  async function shareChallenge(score, streak) {
+    const shareData = {
+      title: 'Petra Baptist Church Bible Challenge',
+      text: `I scored ${score}/${DAILY_COUNT} on today's Bible Challenge at Petra Baptist Church! 🔥 Streak: ${streak} day${streak === 1 ? '' : 's'}`,
+      dialogTitle: 'Share My Results'
+    };
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Share) {
+      try { await window.Capacitor.Plugins.Share.share(shareData); } catch (e) {}
+    } else if (navigator.share) {
+      try { await navigator.share(shareData); } catch (e) {}
+    } else {
+      alert(shareData.text);
+    }
+  }
+
+  openChallenge();
+</script>
+
+</body>
+</html>
