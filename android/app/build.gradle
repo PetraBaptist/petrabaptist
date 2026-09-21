@@ -18,7 +18,7 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("/Users/home/Petra App Codes/Google/petrachurch/petra-release-key.jks")
+            storeFile file("/Users/home/Sync/Rev/Petra Keystore/petra.keystore")
             storePassword "Petra2025"
             keyAlias "petra-key"
             keyPassword "Petra2025"
